@@ -19,6 +19,7 @@ import (
 	"github.com/influxdata/kapacitor/server/vars"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/alertmanager"
 	ec2 "github.com/influxdata/kapacitor/services/ec2/client"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
@@ -173,6 +174,10 @@ type TaskMaster struct {
 	AlertaService interface {
 		DefaultHandlerConfig() alerta.HandlerConfig
 		Handler(alerta.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
+	}
+	AlertManagerService interface {
+		DefaultHandlerConfig() alertmanager.HandlerConfig
+		Handler(alertmanager.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	SensuService interface {
 		Handler(sensu.HandlerConfig, ...keyvalue.T) (alert.Handler, error)

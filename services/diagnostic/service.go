@@ -178,6 +178,12 @@ func (s *Service) NewAlertaHandler() *AlertaHandler {
 	}
 }
 
+func (s *Service) NewAlertManagerHandler() *AlertManagerHandler {
+	return &AlertManagerHandler{
+		l: s.Logger.With(String("service", "alertmanager")),
+	}
+}
+
 func (s *Service) NewKapacitorHandler() *KapacitorHandler {
 	return &KapacitorHandler{
 		l: s.Logger.With(String("service", "kapacitor")),

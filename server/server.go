@@ -23,6 +23,7 @@ import (
 	"github.com/influxdata/kapacitor/server/vars"
 	"github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/alertmanager"
 	"github.com/influxdata/kapacitor/services/azure"
 	"github.com/influxdata/kapacitor/services/config"
 	"github.com/influxdata/kapacitor/services/consul"
@@ -229,6 +230,7 @@ func New(c *Config, buildInfo BuildInfo, diagService *diagnostic.Service) (*Serv
 
 	// Append Alert integration services
 	s.appendAlertaService()
+	s.appendAlertManagerService()
 	s.appendHipChatService()
 	s.appendKafkaService()
 	if err := s.appendMQTTService(); err != nil {
@@ -755,6 +757,18 @@ func (s *Server) appendAlertaService() {
 
 	s.SetDynamicService("alerta", srv)
 	s.AppendService("alerta", srv)
+}
+
+func (s *Server) appendAlertManagerService() {
+	c := s.config.AlertManager
+	d := s.DiagService.NewAlertManagerHandler()
+	srv := alertmanager.NewService(c, d)
+
+	s.TaskMaster.AlertManagerService = srv
+	s.AlertService.AlertManagerService = srv
+
+	s.SetDynamicService("alertmanager", srv)
+	s.AppendService("alertmanager", srv)
 }
 
 func (s *Server) appendTalkService() {

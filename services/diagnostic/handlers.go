@@ -17,6 +17,7 @@ import (
 	"github.com/influxdata/kapacitor/models"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/alertmanager"
 	"github.com/influxdata/kapacitor/services/ec2"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httppost"
@@ -391,6 +392,32 @@ func (h *AlertaHandler) TemplateError(err error, kv keyvalue.T) {
 
 func (h *AlertaHandler) Error(msg string, err error) {
 	h.l.Error(msg, Error(err))
+}
+
+// Alertmanager handler
+
+type AlertManagerHandler struct {
+	l Logger
+}
+
+func (h *AlertManagerHandler) WithContext(ctx ...keyvalue.T) alertmanager.Diagnostic {
+	fields := logFieldsFromContext(ctx)
+
+	return &AlertManagerHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+func (h *AlertManagerHandler) TemplateError(err error, kv keyvalue.T) {
+	h.l.Error("failed to evaluate AlertManager template", Error(err), String(kv.Key, kv.Value))
+}
+
+func (h *AlertManagerHandler) Error(msg string, err error) {
+	h.l.Error(msg, Error(err))
+}
+
+func (h *AlertManagerHandler) Debug(msg string) {
+	h.l.Debug(msg)
 }
 
 // HipChat handler

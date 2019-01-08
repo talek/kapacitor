@@ -362,6 +362,10 @@ type AlertNodeData struct {
 	// tick:ignore
 	AlertaHandlers []*AlertaHandler `tick:"Alerta" json:"alerta"`
 
+	// Send alert to AlertaManager
+	// tick:ignore
+	AlertManagerHandlers []*AlertManagerHandler `tick:"AlertManager" json:"alertManager"`
+
 	// Send alert to OpsGenie
 	// tick:ignore
 	OpsGenieHandlers []*OpsGenieHandler `tick:"OpsGenie" json:"opsGenie"`
@@ -1201,6 +1205,22 @@ type AlertaHandler struct {
 func (a *AlertaHandler) Services(service ...string) *AlertaHandler {
 	a.Service = service
 	return a
+}
+
+// Send alert to AlertManager
+func (n *AlertNodeData) AlertManager() *AlertManagerHandler {
+	alertManager := &AlertManagerHandler{
+		AlertNodeData: n,
+	}
+	n.AlertManagerHandlers = append(n.AlertManagerHandlers, alertManager)
+	return alertManager
+}
+
+type AlertManagerHandler struct {
+	*AlertNodeData `json:"-"`
+
+	URL         string `json:"url"`
+	RetryFolder string `json:"retry-folder"`
 }
 
 // Send alert to an MQTT broker

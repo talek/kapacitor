@@ -365,6 +365,21 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		an.handlers = append(an.handlers, h)
 	}
 
+	for _, a := range n.AlertManagerHandlers {
+		c := et.tm.AlertManagerService.DefaultHandlerConfig()
+		if a.URL != "" {
+			c.URL = a.URL
+		}
+		if a.RetryFolder != "" {
+			c.RetryFolder = a.RetryFolder
+		}
+		h, err := et.tm.AlertManagerService.Handler(c, ctx...)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create AlertManager handler")
+		}
+		an.handlers = append(an.handlers, h)
+	}
+
 	for _, p := range n.PushoverHandlers {
 		c := pushover.HandlerConfig{}
 		if p.Device != "" {

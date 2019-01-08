@@ -14,6 +14,7 @@ import (
 	"github.com/influxdata/kapacitor/keyvalue"
 	"github.com/influxdata/kapacitor/models"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/alertmanager"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/httppost"
@@ -82,6 +83,10 @@ type Service struct {
 	AlertaService interface {
 		DefaultHandlerConfig() alerta.HandlerConfig
 		Handler(alerta.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
+	}
+	AlertManagerService interface {
+		DefaultHandlerConfig() alertmanager.HandlerConfig
+		Handler(alertmanager.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	HipChatService interface {
 		Handler(hipchat.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -768,6 +773,17 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 			return handler{}, err
 		}
 		h, err = s.AlertaService.Handler(c, ctx...)
+		if err != nil {
+			return handler{}, err
+		}
+		h = newExternalHandler(h)
+	case "alertmanager":
+		c := s.AlertManagerService.DefaultHandlerConfig()
+		err = decodeOptions(spec.Options, &c)
+		if err != nil {
+			return handler{}, err
+		}
+		h, err = s.AlertManagerService.Handler(c, ctx...)
 		if err != nil {
 			return handler{}, err
 		}
